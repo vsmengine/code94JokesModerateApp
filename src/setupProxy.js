@@ -1,4 +1,5 @@
 const { createProxyMiddleware, fixRequestBody } = require('http-proxy-middleware');
+const MODERATE_API_KEY = 'localhost_4300';
 
 module.exports = (app) => {
   app.use(
@@ -12,7 +13,15 @@ module.exports = (app) => {
           return 'http://jokesSubmitApp:4100/api';
         },
         on: {
-            proxyReq: fixRequestBody,
+            // proxyReq: fixRequestBody,
+            proxyReq: (proxyReq, req, res) => {
+              /* handle proxyReq */
+              if (req.headers['authorization']) {
+                proxyReq.setHeader('Authorization', req.headers['authorization']);
+              }
+              proxyReq.setHeader('x-api-key', MODERATE_API_KEY);
+              return fixRequestBody(proxyReq, req);
+            },
             proxyRes: (proxyRes, req, res) => {
               /* handle proxyRes */
             },
